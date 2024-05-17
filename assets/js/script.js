@@ -4,33 +4,26 @@
 // add end 
 // add path find algo
 
-let dir = {x: 250, y: 0}
+let dir = {x: 250, y: 250}
 
 function setup() {
   createCanvas(500, 500)
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight)
-}
-
-
 // pixel ticker
 const timer = setInterval(() => {
-  if(dir.x == 490) {
-    clearInterval(timer)
-    return
-  }
-  dir.x += 10
-}, 100)
+  const nextX = Math.random() * 2 > 1 ? 10 : -10
+  const nextY = Math.random() * 2 > 1 ? 10 : -10
+  dir.x += nextX
+  dir.y += nextY
+
+}, 500)
 
 function draw() {
   clear()
   fill(0)
-  rect(250, 250, 10, 10)
-  rect(dir.x, 0, 10, 10)
-
-
+  noStroke()
+  rect(Math.min(Math.max(dir.x, 0), 500), Math.min(Math.max(dir.y, 0), 500), 10, 10)
 
   // create blocks
   if(mouseIsPressed) {
