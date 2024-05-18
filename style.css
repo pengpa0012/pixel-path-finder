@@ -6,11 +6,36 @@
 
 body {
   overflow: hidden; 
-  display: grid; 
-  place-items: center; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
   min-height: 100vh;
 }
 
 canvas {
   border: solid 5px #000;
+}
+
+.ui {
+  display: flex;
+  gap: 10px;
+}
+
+.ui button {
+  outline: none;
+  background: #02a7d5;
+  border: none;
+  padding: 10px 20px;
+  font-size: 17px;
+  cursor: pointer;
+  border-radius: 25px;
+  color: white;
+}
+
+.ui button.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 50%;
 }
