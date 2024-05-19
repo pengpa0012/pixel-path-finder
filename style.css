@@ -34,8 +34,8 @@ canvas {
   color: white;
 }
 
-.ui button.disabled {
-  cursor: not-allowed;
+.disabled {
+  cursor: not-allowed !important;
   pointer-events: none;
   opacity: 50%;
 }

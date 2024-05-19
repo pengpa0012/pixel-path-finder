@@ -5,9 +5,11 @@
 let dir = {x: 200, y: 300}
 const endCoords = {x: 400, y: 30}
 const reachedCells = []
-const wallCoords = []
+let wallCoords = []
 let ticker, endTicker
 let isStarted = true
+let isStop = false
+let isDrawing = false
 
 function setup() {
   createCanvas(500, 500)
@@ -16,6 +18,7 @@ function setup() {
 function startTicker() {
   // pixel ticker
   timer = setInterval(() => {
+    if(isStop) return
     // check next step if has wall, if true stop else move
     if(dir.x < endCoords.x && !wallCoords.find(el => dir.x + 10 == el.x && dir.y == el.y)) {
       dir.x += 10
@@ -35,6 +38,7 @@ function startTicker() {
   }, 250)
 
   endTicker = setInterval(() => {
+    if(isStop) return
     const randomX = Math.floor(random(0, 490) / 10) * 10
     const randomY = Math.floor(random(0, 490) / 10) * 10
     endCoords.x = randomX 
@@ -48,10 +52,20 @@ function draw() {
   clear()
   // create blocks
   if(mouseIsPressed) {
-    console.log("test")
     const roundedX = Math.floor(mouseX / 10) * 10
     const roundedY = Math.floor(mouseY / 10) * 10
-    wallCoords.push({x: roundedX, y: roundedY})
+
+    if(isDrawing && roundedX >= 0 && roundedX <= 500 && roundedY >= 0 && roundedY <= 500) {
+      if(wallCoords.find(el => el.x == roundedX && el.y == roundedY)) {
+        // do nothing if coords already has wall 
+      } else {
+        wallCoords.push({x: roundedX, y: roundedY})
+      }
+    } else {
+      const index = wallCoords.findIndex(el => el.x == roundedX && el.y == roundedY)
+      // delete if wall exist
+      if(index > -1) wallCoords.splice(index, 1)
+    }
   }
 
   fill(0)
@@ -86,20 +100,38 @@ function draw() {
 
 
 // UI
-const btn = document.querySelector("div")
+const start = document.querySelector(".start")
+const stopBtn = document.querySelector(".stop")
+const wall = document.querySelector(".wall")
+const erase = document.querySelector(".erase")
+const reset = document.querySelector(".reset")
 
-btn.addEventListener("click", e => {
-  const eventType = e.target.attributes["data-event"].value
-  
-  if(eventType == "start" && !isStarted) {
-    isStarted = true
-    startTicker()
-    loop()
-  }
-  if(eventType == "stop" && isStarted) {
-    isStarted = false
-    clearInterval(timer)
-    clearInterval(endTicker)
-    noLoop()
-  }
+start.addEventListener("click", () => {
+  isStarted = true
+  start.classList.add("disabled")
+  stopBtn.classList.remove("disabled")
+  isStop = false
 })
+
+stopBtn.addEventListener("click", () => {
+  isStarted = false
+  start.classList.remove("disabled")
+  stopBtn.classList.add("disabled")
+  isStop = true
+})
+
+reset.addEventListener("click", () => {
+  wallCoords = []
+})
+
+wall.addEventListener("click", () => {
+  isDrawing = true
+  wall.classList.add("disabled")
+  erase.classList.remove("disabled")
+})
+erase.addEventListener("click", () => {
+  isDrawing = false
+  wall.classList.remove("disabled")
+  erase.classList.add("disabled")
+})
+reset.addEventListener("click", () => {})
