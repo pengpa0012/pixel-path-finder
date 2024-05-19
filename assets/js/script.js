@@ -1,11 +1,7 @@
-// grid
-// add path find algo
-// add menu for stop, play, add/remove wall/end/pixel point,
-
 let dir = {x: 200, y: 300}
 const endCoords = {x: 400, y: 30}
-const reachedCells = []
 let wallCoords = []
+let pathCoord = []
 let ticker, endTicker
 let isStarted = true
 let isStop = false
@@ -17,36 +13,38 @@ function setup() {
 
 function startTicker() {
   // pixel ticker
-  timer = setInterval(() => {
-    if(isStop) return
-    // check next step if has wall, if true stop else move
-    if(dir.x < endCoords.x && !wallCoords.find(el => dir.x + 10 == el.x && dir.y == el.y)) {
-      dir.x += 10
-    }
-    if(dir.x > endCoords.x && !wallCoords.find(el => dir.x - 10 == el.x && dir.y == el.y)) {
-      dir.x -= 10
-    }
-    if(dir.y < endCoords.y && !wallCoords.find(el => dir.y + 10 == el.y && dir.x == el.x)) {
-      dir.y += 10
-    }
-    if(dir.y > endCoords.y && dir.y > 30 + 10 && !wallCoords.find(el => dir.y - 10 == el.y && dir.x == el.x)) {
-      dir.y -= 10
-    }
-    // const {x, y} = generatePath(dir, endCoords, wallCoords)
-    // dir.x += x
-    // dir.y += y
-  }, 250)
+  // timer = setInterval(() => {
+  //   if(isStop) return
+  //   // check next step if has wall, if true stop else move
+  //   if(dir.x < endCoords.x && !wallCoords.find(el => dir.x + 10 == el.x && dir.y == el.y)) {
+  //     dir.x += 10
+  //   }
+  //   if(dir.x > endCoords.x && !wallCoords.find(el => dir.x - 10 == el.x && dir.y == el.y)) {
+  //     dir.x -= 10
+  //   }
+  //   if(dir.y < endCoords.y && !wallCoords.find(el => dir.y + 10 == el.y && dir.x == el.x)) {
+  //     dir.y += 10
+  //   }
+  //   if(dir.y > endCoords.y && dir.y > 30 + 10 && !wallCoords.find(el => dir.y - 10 == el.y && dir.x == el.x)) {
+  //     dir.y -= 10
+  //   }
+  // }, 250)
 
-  endTicker = setInterval(() => {
-    if(isStop) return
-    const randomX = Math.floor(random(0, 490) / 10) * 10
-    const randomY = Math.floor(random(0, 490) / 10) * 10
-    endCoords.x = randomX 
-    endCoords.y = randomY
-  }, 5000)
+  // endTicker = setInterval(() => {
+  //   if(isStop) return
+  //   const randomX = Math.floor(random(0, 490) / 10) * 10
+  //   const randomY = Math.floor(random(0, 490) / 10) * 10
+  //   endCoords.x = randomX 
+  //   endCoords.y = randomY
+  // }, 5000)
+  for (let i = 0; i < pathCoord.length; i++) {
+    setTimeout(() => {
+      dir.x = pathCoord[i].x
+      dir.y = pathCoord[i].y
+    }, i * 1000)
+  }
 }
 
-startTicker()
 
 function draw() {
   clear()
@@ -79,25 +77,81 @@ function draw() {
   }
 }
 
+function generateNextPath(currCoord, endCoords, wallCoords) {
+  const moves = [
+      { x: 0, y: -10 },  // Up
+      { x: 0, y: 10 },   // Down
+      { x: -10, y: 0 },  // Left
+      { x: 10, y: 0 }    // Right
+  ]
 
-// function generateNextPath(currCoord, endCoords, wallCoords) {
-//   // check current coords if valid coords
-//   // the dir here should be next cell (i think)
-//   const isValidCoords = currCoord.x >= 0 && currCoord.x < 500 && currCoord.y >= 0 && currCoord.y < 500
+  function heuristic(a, b) {
+      return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
+  }
 
-//   // check if valid path
-//   const isValidPath = wallCoords.find(el => el.x !== "path.x" && el.y !== "path.y")
+  // Priority Queue implementation using a simple array and sort
+  const openList = [{ ...currCoord, g: 0, h: heuristic(currCoord, endCoords), f: heuristic(currCoord, endCoords) }]
+  const closedList = new Set()
+  const wallSet = new Set(wallCoords.map(wall => `${wall.x},${wall.y}`))
 
-//   // check if path already taken
-//   const isPathSeen = reachedCells.find(el => el.x !== "path.x" && el.y !== "path.y")
+  while (openList.length > 0) {
+      // Sort openList to get the node with the lowest f value
+      openList.sort((a, b) => a.f - b.f)
+      const current = openList.shift()
+      const currentKey = `${current.x},${current.y}`
 
-//   // total distance between start to end coords
-//   const distance = Math.abs(currCoord.x - endCoords.x) + Math.abs(currCoord.y - endCoords.y)
+      // If the current node is the goal, reconstruct and return the path
+      if (current.x === endCoords.x && current.y === endCoords.y) {
+          return reconstructPath(current)
+      }
 
-//   // presumably return the next best path (x, y)
-//   return "correct path"
-// }
+      closedList.add(currentKey)
 
+      for (const move of moves) {
+          const neighbor = {
+              x: current.x + move.x,
+              y: current.y + move.y,
+              parent: current
+          }
+          const neighborKey = `${neighbor.x},${neighbor.y}`
+
+          if (
+              neighbor.x >= 0 && neighbor.x < 500 &&
+              neighbor.y >= 0 && neighbor.y < 500 &&
+              !wallSet.has(neighborKey) &&
+              !closedList.has(neighborKey)
+          ) {
+              const tentativeG = current.g + 10
+              const existingNode = openList.find(node => node.x === neighbor.x && node.y === neighbor.y)
+
+              if (!existingNode || tentativeG < existingNode.g) {
+                  neighbor.g = tentativeG
+                  neighbor.h = heuristic(neighbor, endCoords)
+                  neighbor.f = neighbor.g + neighbor.h
+
+                  if (existingNode) {
+                      // Update the existing node
+                      Object.assign(existingNode, neighbor)
+                  } else {
+                      // Add new node to the open list
+                      openList.push(neighbor)
+                  }
+              }
+          }
+      }
+  }
+
+  return null
+
+  function reconstructPath(node) {
+      const path = []
+      while (node) {
+          path.push({ x: node.x, y: node.y })
+          node = node.parent
+      }
+      return path.reverse()
+  }
+}
 
 // UI
 const start = document.querySelector(".start")
@@ -111,6 +165,8 @@ start.addEventListener("click", () => {
   start.classList.add("disabled")
   stopBtn.classList.remove("disabled")
   isStop = false
+  pathCoord = generateNextPath(dir, endCoords, wallCoords)
+  startTicker()
 })
 
 stopBtn.addEventListener("click", () => {
@@ -118,6 +174,7 @@ stopBtn.addEventListener("click", () => {
   start.classList.remove("disabled")
   stopBtn.classList.add("disabled")
   isStop = true
+  pathCoord = []
 })
 
 reset.addEventListener("click", () => {
