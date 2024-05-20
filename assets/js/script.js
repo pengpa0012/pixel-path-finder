@@ -11,7 +11,8 @@ function setup() {
   createCanvas(500, 500)
 }
 
-function startTicker() {
+function startTicker(coords) {
+  if(isStop) return
   // pixel ticker
   // timer = setInterval(() => {
   //   if(isStop) return
@@ -37,11 +38,15 @@ function startTicker() {
   //   endCoords.x = randomX 
   //   endCoords.y = randomY
   // }, 5000)
-  for (let i = 0; i < pathCoord.length; i++) {
-    setTimeout(() => {
-      dir.x = pathCoord[i].x
-      dir.y = pathCoord[i].y
-    }, i * 1000)
+  if(coords) {
+    for (let i = 0; i < coords.length; i++) {
+      setTimeout(() => {
+        dir.x = coords[i].x
+        dir.y = coords[i].y
+      }, i * 500)
+    }
+  } else {
+    alert("Path is closed.")
   }
 }
 
@@ -54,8 +59,8 @@ function draw() {
     const roundedY = Math.floor(mouseY / 10) * 10
 
     if(isDrawing && roundedX >= 0 && roundedX <= 500 && roundedY >= 0 && roundedY <= 500) {
-      if(wallCoords.find(el => el.x == roundedX && el.y == roundedY)) {
-        // do nothing if coords already has wall 
+      if(wallCoords.find(el => el.x == roundedX && el.y == roundedY) || endCoords.x == roundedX && endCoords.y == roundedY || dir.x == roundedX && dir.y == roundedY) {
+        // do nothing if coords already has wall/end/pixel coords
       } else {
         wallCoords.push({x: roundedX, y: roundedY})
       }
@@ -164,15 +169,21 @@ start.addEventListener("click", () => {
   isStarted = true
   start.classList.add("disabled")
   stopBtn.classList.remove("disabled")
+  wall.classList.add("disabled")
+  erase.classList.add("disabled")
+  reset.classList.add("disabled")
   isStop = false
   pathCoord = generateNextPath(dir, endCoords, wallCoords)
-  startTicker()
+  startTicker(pathCoord)
 })
 
 stopBtn.addEventListener("click", () => {
   isStarted = false
   start.classList.remove("disabled")
   stopBtn.classList.add("disabled")
+  wall.classList.remove("disabled")
+  erase.classList.remove("disabled")
+  reset.classList.remove("disabled")
   isStop = true
   pathCoord = []
 })
@@ -192,3 +203,7 @@ erase.addEventListener("click", () => {
   erase.classList.add("disabled")
 })
 reset.addEventListener("click", () => {})
+
+
+// to fixed
+// path coords update
