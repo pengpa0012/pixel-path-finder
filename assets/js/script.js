@@ -2,10 +2,18 @@ let dir = {x: 200, y: 300}
 const endCoords = {x: 400, y: 30}
 let wallCoords = []
 let pathCoord = []
-let ticker, endTicker
+let tickers = []
 let isStarted = true
 let isStop = false
 let isDrawing = false
+
+// UI
+const start = document.querySelector(".start")
+const stopBtn = document.querySelector(".stop")
+const wall = document.querySelector(".wall")
+const erase = document.querySelector(".erase")
+const reset = document.querySelector(".reset")
+const resetPos = document.querySelector(".reset-pos")
 
 function setup() {
   createCanvas(500, 500)
@@ -40,13 +48,20 @@ function startTicker(coords) {
   // }, 5000)
   if(coords) {
     for (let i = 0; i < coords.length; i++) {
-      setTimeout(() => {
+      const ticker = setTimeout(() => {
         dir.x = coords[i].x
         dir.y = coords[i].y
       }, i * 500)
+      tickers.push(ticker)
     }
   } else {
     alert("Path is closed.")
+    start.classList.remove("disabled")
+    stopBtn.classList.add("disabled")
+    wall.classList.remove("disabled")
+    erase.classList.remove("disabled")
+    reset.classList.remove("disabled")
+    resetPos.classList.remove("disabled")
   }
 }
 
@@ -82,10 +97,21 @@ function draw() {
   }
 }
 
+function clearAllTimeouts(timeouts) {
+  for (let i = 0; i < timeouts.length; i++) {
+    clearTimeout(timeouts[i])
+  }
+  timeouts = []
+}
+
 function generateNextPath(currCoord, endCoords, wallCoords) {
   const moves = [
       { x: 0, y: -10 },  // Up
+      { x: 10, y: -10 },  // Up Right
+      { x: -10, y: -10 },  // Up Left
       { x: 0, y: 10 },   // Down
+      { x: 10, y: 10 },   // Down Right
+      { x: -10, y: 10 },   // Down Left
       { x: -10, y: 0 },  // Left
       { x: 10, y: 0 }    // Right
   ]
@@ -159,13 +185,6 @@ function generateNextPath(currCoord, endCoords, wallCoords) {
 }
 
 // UI
-const start = document.querySelector(".start")
-const stopBtn = document.querySelector(".stop")
-const wall = document.querySelector(".wall")
-const erase = document.querySelector(".erase")
-const reset = document.querySelector(".reset")
-const resetPos = document.querySelector(".reset-pos")
-
 start.addEventListener("click", () => {
   isStarted = true
   start.classList.add("disabled")
@@ -181,6 +200,7 @@ start.addEventListener("click", () => {
 
 stopBtn.addEventListener("click", () => {
   isStarted = false
+  clearAllTimeouts(tickers)
   start.classList.remove("disabled")
   stopBtn.classList.add("disabled")
   wall.classList.remove("disabled")
@@ -212,7 +232,3 @@ resetPos.addEventListener("click", () => {
   endCoords.x = Math.floor(random(0, 490) / 10) * 10
   endCoords.y = Math.floor(random(0, 490) / 10) * 10
 })
-
-
-// to fixed
-// path coords update
