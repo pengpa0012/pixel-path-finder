@@ -164,6 +164,7 @@ const stopBtn = document.querySelector(".stop")
 const wall = document.querySelector(".wall")
 const erase = document.querySelector(".erase")
 const reset = document.querySelector(".reset")
+const resetPos = document.querySelector(".reset-pos")
 
 start.addEventListener("click", () => {
   isStarted = true
@@ -172,6 +173,7 @@ start.addEventListener("click", () => {
   wall.classList.add("disabled")
   erase.classList.add("disabled")
   reset.classList.add("disabled")
+  resetPos.classList.add("disabled")
   isStop = false
   pathCoord = generateNextPath(dir, endCoords, wallCoords)
   startTicker(pathCoord)
@@ -184,6 +186,7 @@ stopBtn.addEventListener("click", () => {
   wall.classList.remove("disabled")
   erase.classList.remove("disabled")
   reset.classList.remove("disabled")
+  resetPos.classList.remove("disabled")
   isStop = true
   pathCoord = []
 })
@@ -202,7 +205,13 @@ erase.addEventListener("click", () => {
   wall.classList.remove("disabled")
   erase.classList.add("disabled")
 })
-reset.addEventListener("click", () => {})
+
+resetPos.addEventListener("click", () => {
+  dir.x = Math.floor(random(0, 490) / 10) * 10
+  dir.y = Math.floor(random(0, 490) / 10) * 10
+  endCoords.x = Math.floor(random(0, 490) / 10) * 10
+  endCoords.y = Math.floor(random(0, 490) / 10) * 10
+})
 
 
 // to fixed
