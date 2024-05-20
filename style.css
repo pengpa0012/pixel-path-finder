@@ -47,3 +47,27 @@ canvas {
   pointer-events: none;
   opacity: 50%;
 }
+
+.mobile {
+  display: none;
+}
+
+@media (max-width: 550px) {
+  .main {
+    display: none;
+  }
+  .mobile {
+    text-align: center;
+    margin: 20px 0;
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: white;
+    display: grid;
+    place-items: center;
+  }
+
+  .mobile h1 {
+    font-size: 20px;
+  }
+}
