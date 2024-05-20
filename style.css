@@ -12,6 +12,14 @@ body {
   flex-direction: column;
   gap: 10px;
   min-height: 100vh;
+  font-family: sans-serif;
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: bold;
+  text-align: center;
+  margin-block: 20px;
 }
 
 canvas {
