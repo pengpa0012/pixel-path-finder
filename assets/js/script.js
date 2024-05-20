@@ -49,6 +49,7 @@ function startTicker(coords) {
   if(coords) {
     for (let i = 0; i < coords.length; i++) {
       const ticker = setTimeout(() => {
+        if(i == coords.length - 1) alert("Goal Reached!")
         dir.x = coords[i].x
         dir.y = coords[i].y
       }, i * 500)
